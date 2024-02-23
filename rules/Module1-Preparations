@@ -1,0 +1,57 @@
+rule fasta_to_2bit:
+    input:
+        start_genome=config["start-genome"],
+        end_genome=config["end-genome"]
+    output:
+        start_genome="{genome}.2bit".format(genome=config["start-genome"]),
+        end_genome="{genome}.2bit".format(genome=config["end-genome"])
+    singularity:
+        config["singularity"]["fatotwobit"]
+    shell:"""
+       faToTwoBit {input.start_genome} {output.start_genome}
+       faToTwoBit {input.end_genome} {output.end_genome}
+    """
+    
+rule run_blat:
+    input:
+        start_genome="{genome}.2bit".format(genome=config["start-genome"]),
+        end_genome="{genome}.2bit".format(genome=config["end-genome"])
+    output:
+        "%s/CHAIN/chain.psl" % (config["project-folder"])
+    singularity:
+        config["singularity"]["blat"]
+    shell:
+        """
+        blat {input.start_genome} {input.end_genome} {output} -tileSize=12 -minScore=1000 -minIdentity=98
+        """
+        
+rule psl_to_chain:
+    input:
+        "%s/CHAIN/chain.psl" % (config["project-folder"])
+    output:
+        "%s/CHAIN/temp.chain" % (config["project-folder"])
+    singularity:
+        config["singularity"]["pslToChain"]
+    shell:
+        """
+        pslToChain {input} {output}
+        #chainMergeSort temp.chain | chainNet stdin genome_old.sizes genome_new.sizes stdout /dev/null | netChainSubset stdin temp.chain {output}
+        """
+        
+rule chain_merge:
+    input:
+        tmp_chain="%s/CHAIN/temp.chain" % (config["project-folder"]),
+        start_genome=config["start-genome"],
+        end_genome=config["end-genome"]
+    output:
+        start_genome_sizes="{genome}.sizes".format(genome=config["start-genome"]),
+        end_genome_sizes="{genome}.sizes".format(genome=config["end-genome"]),
+        chain="%s/CHAIN/over.chain" % (config["project-folder"]),
+    singularity:
+        config["singularity"]["pslToChain"]
+    shell:
+        """
+        faSize -detailed {input.start_genome} > {output.start_genome_sizes}
+        faSize -detailed {input.end_genome} > {output.end_genome_sizes}
+        chainMergeSort {input.tmp_chain} | chainNet {input.tmp_chain} {output.start_genome_sizes} {output.end_genome_sizes} stdout /dev/null | netChainSubset {input.tmp_chain} {output.chain}
+        """

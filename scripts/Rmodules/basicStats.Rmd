@@ -1,0 +1,31 @@
+# Basic stats
+
+A concise overview of important runtime parameters and used inputs.
+
+```{r get pipeline version}
+pipeSMK <- readLines(file.path(pipelineFolder,"Snakebite-LiftOver.smk"))
+pipeVersion <- gsub("##### Version: ","",pipeSMK[grep("##### Version:", pipeSMK)])
+```
+
+```{r import barcodesID, results="asis"}
+pipelineConfig <- readLines(pipelineConfig.file)
+
+projectFolder.info <- getConfigField("project-folder")
+pipelineFolder.info <- getConfigField("pipeline-folder")
+pipelineConfig.info <- pipelineConfig.file
+serverConfig.info <- serverConfig.file
+
+out <- data.frame(c("Pipeline version",
+                    "Project folder",
+                    "Pipeline folder",
+                    "Pipeline config",
+                    "Server config"),
+                  c(pipeVersion,
+                    projectFolder.info,
+                    pipelineFolder.info,
+                    pipelineConfig.info,
+                    serverConfig.info))
+
+out_html <- knitr::kable(out, col.names = NULL, "html")
+kable_styling(out_html, "striped", position = "left")
+```

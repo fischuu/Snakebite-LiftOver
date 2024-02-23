@@ -1,17 +1,42 @@
 __default__:
     time: 00:30:00
     job-name:  LiftOver
-    account: project_2001746
+    account: project_2005222
     ntasks: 1
     cpus-per-task: 1
     mem-per-cpu: 4000
     partition: small
-    working-directory: /scratch/project_2001746/logs/
+    working-directory: /scratch/project_2005222/logs/
     nvme: 0
 
 # Module 1- Preprocessing
 ################################################################################
-fastp_trim_reads:
-    job-name: fastp
-    time: 01:00:00
+fasta_to_2bit:
+    job-name: fasta_to_2bit
+    time: 0-10:00:00
     cpus-per-task: 10
+    mem-per-cpu: 8000
+
+run_blat:
+    job-name: run_blat
+    time: 0-10:00:00
+    cpus-per-task: 10
+    mem-per-cpu: 8000
+    
+psl_to_chain:
+    job-name: psl_to_chain
+    time: 0-10:00:00
+    cpus-per-task: 10
+    mem-per-cpu: 8000
+    
+chain_merge:
+    job-name: chain_merge
+    time: 0-10:00:00
+    cpus-per-task: 10
+    mem-per-cpu: 8000
+    
+liftover:
+    job-name: liftover
+    time: 0-10:00:00
+    cpus-per-task: 10
+    mem-per-cpu: 8000

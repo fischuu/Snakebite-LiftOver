@@ -1,10 +1,10 @@
-module load snakemake
+module load snakemake/7.17.1
 
 pipelineFolder="/users/fischerd/git/Snakebite-LiftOver"
-projectFolder="/scratch/project_2001746/WF_QC"
+projectFolder="/scratch/project_2005222/SNPPanel"
 
-export APPTAINER_TMPDIR="/scratch/project_2001746/tmp"
-export APPTAINER_CACHEDIR="/scratch/project_2001746/tmp"
+export APPTAINER_TMPDIR="/scratch/project_2005222/tmp"
+export APPTAINER_CACHEDIR="/scratch/project_2005222/tmp"
 
 mkdir -p $APPTAINER_TMPDIR
 

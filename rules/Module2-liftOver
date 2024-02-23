@@ -1,0 +1,13 @@
+rule lift_over:
+    input:
+        chain="%s/CHAIN/over.chain" % (config["project-folder"]),
+        old_bed=config["start-bed"]
+    output:
+        new_bed=config["end-bed"],
+        unmapped="%s/LIFTOVER/unmapped.out" % (config["project-folder"])
+    singularity:
+        config["singularity"]["liftover"]  # assuming you've set this in your config
+    shell:
+        """
+        liftOver {input.old_bed} {input.chain} {output.new_bed} {output.unmapped}
+        """

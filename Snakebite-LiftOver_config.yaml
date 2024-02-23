@@ -1,0 +1,6 @@
+project-folder: "/scratch/project_2001746/WF_QC"                   
+pipeline-folder: "/users/fischerd/git/Snakebite-LiftOver"
+pipeline-config: "Snakebite-LiftOver_config.yaml"
+server-config: "Snakebite-LiftOver_server-config.yaml"
+local-scratch: $LOCAL_SCRATCH
+tmp-folder: "tmp"

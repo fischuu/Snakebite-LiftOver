@@ -6,4 +6,6 @@
 
 0.1.* UPDATES
 --------------------------------------------------------------------------------
+3: New rule: chains are now determined for both directions
+2: Changed blat to parallel pblat
 1: First, inital version

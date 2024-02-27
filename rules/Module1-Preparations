@@ -5,24 +5,53 @@ rule fasta_to_2bit:
     output:
         start_genome="{genome}.2bit".format(genome=config["start-genome"]),
         end_genome="{genome}.2bit".format(genome=config["end-genome"])
+    log:
+        stdout="%s/logs/fasta_to_2bit.stdout.log" % (config["project-folder"]),
+        stderr="%s/logs/fasta_to_2bit.stderr.log" % (config["project-folder"])
     singularity:
         config["singularity"]["fatotwobit"]
-    shell:"""
-       faToTwoBit {input.start_genome} {output.start_genome}
-       faToTwoBit {input.end_genome} {output.end_genome}
-    """
-    
-rule run_blat:
-    input:
-        start_genome="{genome}.2bit".format(genome=config["start-genome"]),
-        end_genome="{genome}.2bit".format(genome=config["end-genome"])
-    output:
-        "%s/CHAIN/chain.psl" % (config["project-folder"])
-    singularity:
-        config["singularity"]["blat"]
     shell:
         """
-        blat {input.start_genome} {input.end_genome} {output} -tileSize=12 -minScore=1000 -minIdentity=98
+        faToTwoBit {input.start_genome} {output.start_genome} > {log.stdout} 2> {log.stderr}
+        faToTwoBit {input.end_genome} {output.end_genome} >> {log.stdout} 2>> {log.stderr}
+        """    
+
+rule run_blat_oldToNew:
+    input:
+    #    start_genome="{genome}.2bit".format(genome=config["start-genome"]),
+    #    end_genome="{genome}.2bit".format(genome=config["end-genome"])
+        start_genome=config["start-genome"],
+        end_genome=config["end-genome"]
+    output:
+        "%s/CHAIN/chain_oldToNew.psl" % (config["project-folder"])
+    log:
+        stdout="%s/logs/run_blat_oldToNew.stdout.log" % (config["project-folder"]),
+        stderr="%s/logs/run_blat_oldToNew.stderr.log" % (config["project-folder"])
+    singularity:
+        config["singularity"]["pblat"]
+    threads: config["params"]["pblat"]["threads"]   
+    shell:
+        """
+        pblat -threads={threads} {input.start_genome} {input.end_genome} {output} -tileSize=12 -minScore=1000 -minIdentity=98 > {log.stdout} 2> {log.stderr}
+        """
+        
+rule run_blat_newToOld:
+    input:
+    #    start_genome="{genome}.2bit".format(genome=config["start-genome"]),
+    #    end_genome="{genome}.2bit".format(genome=config["end-genome"])
+        start_genome=config["end-genome"],
+        end_genome=config["start-genome"]
+    output:
+        "%s/CHAIN/chain_newToOld.psl" % (config["project-folder"])
+    log:
+        stdout="%s/logs/run_blat_newToOld.stdout.log" % (config["project-folder"]),
+        stderr="%s/logs/run_blat_newToOld.stderr.log" % (config["project-folder"])
+    singularity:
+        config["singularity"]["pblat"]
+    threads: config["params"]["pblat"]["threads"]   
+    shell:
+        """
+        pblat -threads={threads} {input.start_genome} {input.end_genome} {output} -tileSize=12 -minScore=1000 -minIdentity=98 > {log.stdout} 2> {log.stderr}
         """
         
 rule psl_to_chain:

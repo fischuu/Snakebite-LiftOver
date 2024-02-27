@@ -17,11 +17,17 @@ fasta_to_2bit:
     cpus-per-task: 10
     mem-per-cpu: 8000
 
-run_blat:
-    job-name: run_blat
-    time: 0-10:00:00
-    cpus-per-task: 10
-    mem-per-cpu: 8000
+run_blat_oldToNew:
+    job-name: run_blat_oldToNew
+    time: 3-00:00:00
+    cpus-per-task: 30
+    mem-per-cpu: 3000
+    
+run_blat_newToOld:
+    job-name: run_blat_newToOld
+    time: 3-00:00:00
+    cpus-per-task: 30
+    mem-per-cpu: 3000
     
 psl_to_chain:
     job-name: psl_to_chain

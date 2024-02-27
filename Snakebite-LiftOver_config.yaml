@@ -9,3 +9,7 @@ start-genome: ""
 end-genome: ""
 start-bed: ""
 end-bed: ""
+
+params:
+    pblat:
+        threads: 30

@@ -12,8 +12,8 @@ report: "report/workflow.rst"
 ##### Snakebite-LiftOver #####
 ##### Daniel Fischer (daniel.fischer@luke.fi)
 ##### Natural Resources Institute Finland (Luke)
-##### Version: 0.1
-version = "0.1"
+##### Version: 0.1.3
+version = "0.1.3"
 
 ##### set minimum snakemake version #####
 #min_version("6.0")
@@ -32,6 +32,18 @@ if(config["pipeline-config"][0]!='/'):
 if(config["server-config"][0]!='/'):
     config["server-config"] = config["project-folder"] + '/' + config["server-config"]
     
+if(config["start-genome"][0]!='/'):
+    config["start-genome"] = config["project-folder"] + '/' + config["start-genome"]
+    
+if(config["start-bed"][0]!='/'):
+    config["start-bed"] = config["project-folder"] + '/' + config["start-bed"]
+    
+if(config["end-genome"][0]!='/'):
+    config["end-genome"] = config["project-folder"] + '/' + config["end-genome"]
+    
+if(config["end-bed"][0]!='/'):
+    config["end-bed"] = config["project-folder"] + '/' + config["end-bed"]
+    
 ##### Extract the cluster resource requests from the server config #####
 cluster=dict()
 if os.path.exists(config["server-config"]):
@@ -45,9 +57,11 @@ config["report-script"] = config["pipeline-folder"]+"/scripts/finalReport.R"
 
 ##### Singularity container #####
 config["singularity"] = {}
-config["singularity"]["fastp"] = "docker://fischuu/fastp:0.20.1"
 config["singularity"]["r-gbs"] = "docker://fischuu/r-gbs:4.2.1-0.7"
-config["singularity"]["star"] = "docker://fischuu/star:2.7.5a"
+config["singularity"]["fatotwobit"] = "docker://quay.io/biocontainers/ucsc-fatotwobit:357--h446ed27_4"
+config["singularity"]["pblat"] = "docker://icebert/pblat"
+config["singularity"]["pslToChain"] = "docker://icebert/docker_ucsc_genome_browser"
+config["singularity"]["liftover"] = "docker://quay.io/biocontainers/ucsc-liftover:357--h446ed27_4"
 
 ##### Print the welcome screen #####
 print("#################################################################################")
@@ -60,16 +74,29 @@ print("##### project-folder       : "+config["project-folder"])
 print("##### pipeline-folder      : "+config["pipeline-folder"])
 print("##### pipeline-config      : "+config["pipeline-config"])
 print("##### server-config        : "+config["server-config"])
+print("##### start-genome         : "+config["start-genome"])
+print("##### end-genome           : "+config["end-genome"])
+print("##### start-bed            : "+config["start-bed"])
+print("##### end-bed              : "+config["end-bed"])
 print("#####")
 print("##### Singularity configuration")
 print("##### --------------------------------")
-print("##### star      : "+config["singularity"]["star"])
-
+print("##### R          : "+config["singularity"]["r-gbs"])
+print("##### FaToTwoBit : "+config["singularity"]["fatotwobit"])
+print("##### PBlat       : "+config["singularity"]["pblat"])
+print("##### PSL2Chain  : "+config["singularity"]["pslToChain"])
+print("##### LiftOver   : "+config["singularity"]["liftover"])
 
 ##### run complete pipeline #####
 rule all:
     input:
-        "%s/finalReport.html" % (config["project-folder"])
+        "%s/CHAIN/over.chain" % (config["project-folder"])
+
+rule blat:
+    input:
+        "%s/CHAIN/chain_oldToNew.psl" % (config["project-folder"]),
+        "%s/CHAIN/chain_newToOld.psl" % (config["project-folder"])
 
 ##### load rules #####
 include: "rules/Module1-Preparations"
+include: "rules/Module2-liftOver"
